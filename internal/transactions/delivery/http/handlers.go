@@ -6,6 +6,7 @@ import (
 	"TransactionAPI/internal/transactions/dto"
 	"TransactionAPI/pkg/logging"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -21,25 +22,41 @@ func NewTransactionHandlers(transUC transactions.UseCase, logger logging.Logger)
 }
 
 func (h *transHandler) Create() echo.HandlerFunc {
-	h.logger.Info("Start creation a transaction")
-	return func (c echo.Context) error {
+	h.logger.Info("Create transaction")
+	return func (ctx echo.Context) error {
 		getTrans := &dto.CreateTransDTO{}
-		resultTransaction := models.Transaction{
+		ctx.Bind(&getTrans)
+
+		resultTransaction := &models.Transaction{
 			ID: uuid.NewString(),
+			Status: models.StatusPending,
 			Sender: getTrans.From,
 			Receiver: getTrans.To,
 			Amount: getTrans.Amount,
 		}
 
-		createdTrans, err := h.transUC.Create(c.Request().Context(), &resultTransaction)
+		createdTrans, err := h.transUC.Create(ctx.Request().Context(), resultTransaction)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
+			return ctx.JSON(http.StatusBadRequest, err)
 		}
-		return c.JSON(http.StatusCreated, createdTrans)
+		return ctx.JSON(http.StatusCreated, createdTrans)
 	}
 }
 
 func (h *transHandler) GetByCount() echo.HandlerFunc {
-	return nil
+	h.logger.Info("Get transacion by count")
+	return func (ctx echo.Context) error{
+		trans_count, err := strconv.Atoi(ctx.QueryParam("count"))
+		if err != nil {
+			return ctx.JSON(http.StatusNotFound, "Param shoud be int")
+		}
+
+		transList, err := h.transUC.GetTransactionsByCount(ctx.Request().Context(), trans_count)
+		if err != nil {
+			return ctx.JSON(http.StatusNotFound, "Could not get transactions list")
+		}
+
+		return ctx.JSON(http.StatusOK, transList)
+	}
 }
 

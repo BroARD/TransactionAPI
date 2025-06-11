@@ -1,16 +1,24 @@
 package db
 
 import (
+	"TransactionAPI/internal/models"
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var db *gorm.DB
+
+var (
+	once sync.Once
+	numberOfWallets = 10
+)
 
 func InitDB() (*gorm.DB, error) {
 	if err := godotenv.Load(); err != nil {
@@ -35,11 +43,38 @@ func InitDB() (*gorm.DB, error) {
 		log.Fatalf("FATAL: Ошибка подключения к БД: %v", err)
 	}
 
-	//TODO: добавить миграции
-	if err := db.AutoMigrate(); err != nil {
+	if err := db.AutoMigrate(&models.Transaction{}, &models.Wallet{}); err != nil {
 		log.Fatalf("FATAL: Ошибка миграции: %v", err)
 	}
+
+	once.Do(generateWallets)
 
 	return db, nil
 }
 
+
+//Функция для генерации 10 кошельков
+func generateWallets() {
+	var count int64
+	err := db.Model(&models.Wallet{}).Count(&count).Error
+	if err != nil {
+		log.Print("Could not generate 10 wallets for db")
+		return
+	}
+	if count == 0 {
+		var wallet models.Wallet
+		for i := 0; i < numberOfWallets; i++{
+			wallet = models.Wallet{
+				ID: uuid.NewString(),
+				Amount: 100,
+			}
+			log.Println(wallet)
+			err := db.Create(&wallet).Error
+			if err != nil {
+				return
+			}
+		}
+	} else {
+		log.Println("Wallets were created earlier")
+	}
+}

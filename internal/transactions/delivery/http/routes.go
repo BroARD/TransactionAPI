@@ -9,5 +9,5 @@ import (
 
 func MapTransationsRoutes(transGroup *echo.Group, h transactions.Handlers) {
 	transGroup.POST("/send", h.Create())
-	transGroup.GET("/transactions/:trans_count", h.GetByCount())
+	transGroup.GET("/transactions", h.GetByCount())
 }

@@ -42,8 +42,6 @@ func (s *Server) Run() error {
         return err
     }
 
-    // Здесь нужно ожидать сигнала завершения, например:
-    // wait for interrupt signal or error
     quit := make(chan os.Signal, 1)
     signal.Notify(quit, os.Interrupt)
     <-quit

@@ -20,7 +20,6 @@ func NewWalletHandlers(walletUC wallets.UseCase, logger logging.Logger) wallets.
 
 // Create implements wallets.Hanlders.
 func (h *walletHandlers) GetByID() echo.HandlerFunc {
-	h.logger.Info("Get transacion by count")
 	return func(ctx echo.Context) error {
 		wallet_id := ctx.Param("wallet_id")
 

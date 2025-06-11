@@ -30,6 +30,9 @@ func (s *Server) Run() error {
         ReadTimeout:  15 * time.Second,
         WriteTimeout: 15 * time.Second,
     }
+    if err := s.MapHandlers(s.echo); err != nil {
+        return err
+    }
 
     go func() {
         s.logger.Info("Server is listening on PORT: 8080")
@@ -38,9 +41,6 @@ func (s *Server) Run() error {
         }
     }()
     
-    if err := s.MapHandlers(s.echo); err != nil {
-        return err
-    }
 
     quit := make(chan os.Signal, 1)
     signal.Notify(quit, os.Interrupt)

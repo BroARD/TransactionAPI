@@ -19,3 +19,4 @@ main
 .idea
 pgdata
 vendor
+logs/all.log

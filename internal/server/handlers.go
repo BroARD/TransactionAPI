@@ -20,9 +20,10 @@ func (s *Server) MapHandlers(e *echo.Echo) error{
 	//TODO: Init repositories
 	transactionsRepository := transRepo.NewTransRepository(s.db)
 	walletsRepository := walletRepo.NewWalletRepository(s.db)
+	walletRedisRepository := walletRepo.NewWalletRedisRepository(s.redisClient)
 	//TODO: Init UseCases
 	transactionUseCase := transUseCase.NewTransUseCase(transactionsRepository, s.logger, walletsRepository)
-	walletUseCase := walletUseCase.NewWalletUseCase(walletsRepository, s.logger)
+	walletUseCase := walletUseCase.NewWalletUseCase(walletsRepository, s.logger, walletRedisRepository)
 	//TODO: Init handlers
 	transactionHandlers := transHttp.NewTransactionHandlers(transactionUseCase, s.logger)
 	walletHandlers := walletHttp.NewWalletHandlers(walletUseCase, s.logger)

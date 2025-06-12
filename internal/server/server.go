@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -18,10 +19,11 @@ type Server struct {
 	cfg    *config.Config
 	db     *gorm.DB
 	logger logging.Logger
+    redisClient *redis.Client
 }
 
-func NewServer(cfg *config.Config, db *gorm.DB, logger logging.Logger) *Server{
-	return &Server{echo: echo.New(), cfg: cfg, db: db, logger: logger}
+func NewServer(cfg *config.Config, db *gorm.DB, logger logging.Logger, redisClient *redis.Client) *Server{
+	return &Server{echo: echo.New(), cfg: cfg, db: db, logger: logger, redisClient: redisClient}
 }
 func (s *Server) Run() error {
 	s.logger.Info("Try server starting")

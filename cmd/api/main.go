@@ -4,6 +4,7 @@ import (
 	"TransactionAPI/config"
 	"TransactionAPI/internal/server"
 	"TransactionAPI/pkg/db"
+	"TransactionAPI/pkg/db/redis"
 	"TransactionAPI/pkg/logging"
 	"log"
 
@@ -23,7 +24,10 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	s := server.NewServer(cfg, psqlDB, *logger)
+	redisClient := redis.NewRedisClient(cfg)
+	defer redisClient.Close()
+
+	s := server.NewServer(cfg, psqlDB, *logger, redisClient)
 	if err = s.Run(); err != nil {
 		logger.Fatal(err)
 	}

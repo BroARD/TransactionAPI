@@ -6,3 +6,7 @@ type CreateTransDTO struct {
 	To string
 	Amount float64
 }
+
+type ListTransRedisDTO struct {
+	
+}
